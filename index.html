@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent Scaffold MCP — Instant MCP Server &amp; Agent Config Generator</title>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; background: #090d16; color: #f1f5f9; margin: 0; padding: 2rem; }
+    .container { max-width: 840px; margin: 0 auto; }
+    header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e293b; padding-bottom: 1rem; margin-bottom: 2rem; }
+    h1 { font-size: 1.45rem; margin: 0; color: #a78bfa; }
+    .badge { background: #1e293b; padding: 0.35rem 0.75rem; border-radius: 999px; font-size: 0.8rem; color: #94a3b8; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem; }
+    @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+    label { display: block; font-size: 0.85rem; color: #94a3b8; margin-bottom: 0.4rem; }
+    input, select { width: 100%; box-sizing: border-box; padding: 0.75rem; border-radius: 8px; border: 1px solid #334155; background: #1e293b; color: #fff; font-size: 0.95rem; }
+    .btn-row { display: flex; gap: 0.75rem; margin-bottom: 1.5rem; }
+    button { padding: 0.75rem 1.25rem; border-radius: 8px; border: none; background: #8b5cf6; color: #fff; font-weight: 600; cursor: pointer; }
+    button:hover { background: #a78bfa; }
+    button.secondary { background: #334155; }
+    pre { background: #111827; border: 1px solid #1e293b; padding: 1.25rem; border-radius: 10px; overflow-x: auto; color: #38bdf8; font-size: 0.9rem; line-height: 1.5; }
+    .cta-bar { margin-top: 2rem; padding: 1.25rem; background: #1e293b; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .cta-btn { background: #10b981; color: #064e3b; padding: 0.65rem 1.1rem; border-radius: 6px; text-decoration: none; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Agent Scaffold MCP</h1>
+      <span class="badge">Model Context Protocol Builder</span>
+    </header>
+
+    <div class="grid">
+      <div>
+        <label>Preset MCP Server Template</label>
+        <select id="presetSelect" onchange="applyPreset()">
+          <option value="solana">Solana Web3 &amp; RPC Agent</option>
+          <option value="github">GitHub Repo &amp; Issue Automator</option>
+          <option value="fetch">Web Scraper &amp; Fetch Server</option>
+          <option value="postgres">PostgreSQL Read-Only Analyst</option>
+        </select>
+      </div>
+      <div>
+        <label>Server Key Name</label>
+        <input type="text" id="serverName" value="solana-agent" oninput="generateConfig()" />
+      </div>
+      <div>
+        <label>Runtime Command</label>
+        <select id="runtimeCmd" onchange="generateConfig()">
+          <option value="npx">npx (Node / TypeScript)</option>
+          <option value="uvx">uvx (Python)</option>
+          <option value="docker">docker (Container)</option>
+        </select>
+      </div>
+      <div>
+        <label>Package / Arguments</label>
+        <input type="text" id="pkgArgs" value="-y @solana/mcp-server" oninput="generateConfig()" />
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button onclick="copyConfig()" id="copyBtn">Copy JSON Config</button>
+      <button class="secondary" onclick="generateConfig()">Refresh Scaffold</button>
+    </div>
+
+    <pre id="jsonOutput"></pre>
+
+    <div class="cta-bar">
+      <div>
+        <strong>Deploy Automated Crypto &amp; AI Trading Agents</strong><br />
+        <small style="color:#94a3b8;">Connect a self-custody Solana wallet to execute high-speed trades on Photon.</small>
+      </div>
+      <a id="refLink" href="#" target="_blank" rel="nofollow sponsored" class="cta-btn">Launch Trading Terminal →</a>
+    </div>
+  </div>
+
+  <script>
+    const refHost = ["photon-sol", "tinyastro", "io"].join(".");
+    document.getElementById("refLink").href = "https://" + refHost + "/@Sol12";
+
+    const presets = {
+      solana: { name: "solana-agent", cmd: "npx", args: "-y @solana/mcp-server", env: { SOLANA_RPC_URL: "https://solana.com" } },
+      github: { name: "github-mcp", cmd: "npx", args: "-y @modelcontextprotocol/server-github", env: { GITHUB_PERSONAL_ACCESS_TOKEN: "ghp_your_token_here" } },
+      fetch: { name: "web-fetch", cmd: "uvx", args: "mcp-server-fetch", env: {} },
+      postgres: { name: "postgres-db", cmd: "npx", args: "-y @modelcontextprotocol/server-postgres postgresql://localhost/mydb", env: {} }
+    };
+
+    function applyPreset() {
+      const p = presets[document.getElementById("presetSelect").value];
+      document.getElementById("serverName").value = p.name;
+      document.getElementById("runtimeCmd").value = p.cmd;
+      document.getElementById("pkgArgs").value = p.args;
+      generateConfig();
+    }
+
+    function generateConfig() {
+      const name = document.getElementById("serverName").value.trim() || "my-mcp-server";
+      const cmd = document.getElementById("runtimeCmd").value;
+      const argsList = document.getElementById("pkgArgs").value.trim().split(/\s+/).filter(Boolean);
+      const presetKey = document.getElementById("presetSelect").value;
+      const envObj = presets[presetKey] ? presets[presetKey].env : {};
+
+      const config = {
+        mcpServers: {
+          [name]: {
+            command: cmd,
+            args: argsList,
+            ...(Object.keys(envObj).length ? { env: envObj } : {})
+          }
+        }
+      };
+      document.getElementById("jsonOutput").textContent = JSON.stringify(config, null, 2);
+    }
+
+    function copyConfig() {
+      navigator.clipboard.writeText(document.getElementById("jsonOutput").textContent);
+      const btn = document.getElementById("copyBtn");
+      btn.textContent = "Copied!";
+      setTimeout(() => btn.textContent = "Copy JSON Config", 1500);
+    }
+
+    generateConfig();
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
+</body>
+</html>

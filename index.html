@@ -6,21 +6,21 @@
   <title>Agent Scaffold MCP — Instant MCP Server &amp; Agent Config Generator</title>
   <style>
     body { font-family: system-ui, -apple-system, sans-serif; background: #090d16; color: #f1f5f9; margin: 0; padding: 2rem; }
-    .container { max-width: 840px; margin: 0 auto; }
-    header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e293b; padding-bottom: 1rem; margin-bottom: 2rem; }
-    h1 { font-size: 1.45rem; margin: 0; color: #a78bfa; }
+    .container { max-width: 860px; margin: 0 auto; }
+    header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e293b; padding-bottom: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem; }
+    h1 { font-size: 1.5rem; margin: 0; color: #38bdf8; }
     .badge { background: #1e293b; padding: 0.35rem 0.75rem; border-radius: 999px; font-size: 0.8rem; color: #94a3b8; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem; }
-    @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
-    label { display: block; font-size: 0.85rem; color: #94a3b8; margin-bottom: 0.4rem; }
-    input, select { width: 100%; box-sizing: border-box; padding: 0.75rem; border-radius: 8px; border: 1px solid #334155; background: #1e293b; color: #fff; font-size: 0.95rem; }
-    .btn-row { display: flex; gap: 0.75rem; margin-bottom: 1.5rem; }
-    button { padding: 0.75rem 1.25rem; border-radius: 8px; border: none; background: #8b5cf6; color: #fff; font-weight: 600; cursor: pointer; }
-    button:hover { background: #a78bfa; }
-    button.secondary { background: #334155; }
-    pre { background: #111827; border: 1px solid #1e293b; padding: 1.25rem; border-radius: 10px; overflow-x: auto; color: #38bdf8; font-size: 0.9rem; line-height: 1.5; }
-    .cta-bar { margin-top: 2rem; padding: 1.25rem; background: #1e293b; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
-    .cta-btn { background: #10b981; color: #064e3b; padding: 0.65rem 1.1rem; border-radius: 6px; text-decoration: none; font-weight: 700; }
+    .card { background: #111827; border: 1px solid #1e293b; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+    label { display: block; font-size: 0.85rem; color: #94a3b8; margin-bottom: 0.4rem; margin-top: 1rem; font-weight: 600; }
+    select, input { width: 100%; padding: 0.7rem; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+    pre { background: #020617; border: 1px solid #1e293b; padding: 1rem; border-radius: 8px; overflow-x: auto; font-size: 0.88rem; color: #34d399; margin-top: 1rem; }
+    .btn-row { display: flex; gap: 0.75rem; margin-top: 1rem; flex-wrap: wrap; }
+    button { padding: 0.65rem 1.1rem; border-radius: 8px; border: none; background: #38bdf8; color: #082f49; font-weight: 700; cursor: pointer; }
+    button.sec { background: #1e293b; color: #e2e8f0; border: 1px solid #334155; }
+    .cta-bar { padding: 1.25rem; background: #1e293b; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .cta-btn { background: #10b981; color: #064e3b; padding: 0.7rem 1.2rem; border-radius: 6px; text-decoration: none; font-weight: 700; }
+    .links-footer { margin-top: 1.5rem; font-size: 0.85rem; color: #64748b; display: flex; gap: 1rem; flex-wrap: wrap; }
+    .links-footer a { color: #38bdf8; text-decoration: none; }
   </style>
 </head>
 <body>
@@ -30,97 +30,92 @@
       <span class="badge">Model Context Protocol Builder</span>
     </header>
 
-    <div class="grid">
-      <div>
-        <label>Preset MCP Server Template</label>
-        <select id="presetSelect" onchange="applyPreset()">
-          <option value="solana">Solana Web3 &amp; RPC Agent</option>
-          <option value="github">GitHub Repo &amp; Issue Automator</option>
-          <option value="fetch">Web Scraper &amp; Fetch Server</option>
-          <option value="postgres">PostgreSQL Read-Only Analyst</option>
-        </select>
-      </div>
-      <div>
-        <label>Server Key Name</label>
-        <input type="text" id="serverName" value="solana-agent" oninput="generateConfig()" />
-      </div>
-      <div>
-        <label>Runtime Command</label>
-        <select id="runtimeCmd" onchange="generateConfig()">
-          <option value="npx">npx (Node / TypeScript)</option>
-          <option value="uvx">uvx (Python)</option>
-          <option value="docker">docker (Container)</option>
-        </select>
-      </div>
-      <div>
-        <label>Package / Arguments</label>
-        <input type="text" id="pkgArgs" value="-y @solana/mcp-server" oninput="generateConfig()" />
+    <div class="card">
+      <label for="preset">Preset MCP Server Template</label>
+      <select id="preset" onchange="applyPreset()">
+        <option value="pulse">Solana Pulse Live Market &amp; Arbitrage MCP (Remote HTTP — Verified)</option>
+        <option value="solana">Solana Web3 &amp; RPC Local Agent</option>
+        <option value="github">GitHub Repo &amp; Issue Automator</option>
+        <option value="fetch">Web Scraper &amp; Fetch Server</option>
+      </select>
+
+      <label for="serverKey">Server Key Name</label>
+      <input id="serverKey" value="solana-pulse-mcp" oninput="renderConfig()" />
+
+      <label for="endpointOrPkg">Remote MCP Endpoint URL or Package</label>
+      <input id="endpointOrPkg" oninput="renderConfig()" />
+
+      <pre id="jsonOutput"></pre>
+
+      <div class="btn-row">
+        <button onclick="copyConfig()" id="copyBtn">Copy JSON Config</button>
+        <button class="sec" onclick="applyPreset()">Reset Template</button>
       </div>
     </div>
-
-    <div class="btn-row">
-      <button onclick="copyConfig()" id="copyBtn">Copy JSON Config</button>
-      <button class="secondary" onclick="generateConfig()">Refresh Scaffold</button>
-    </div>
-
-    <pre id="jsonOutput"></pre>
 
     <div class="cta-bar">
       <div>
         <strong>Deploy Automated Crypto &amp; AI Trading Agents</strong><br />
-        <small style="color:#94a3b8;">Connect a self-custody Solana wallet to execute high-speed trades on Photon.</small>
+        <small style="color:#94a3b8;">Connect a self-custody Solana wallet to execute zero-latency trades on Photon.</small>
       </div>
       <a id="refLink" href="#" target="_blank" rel="nofollow sponsored" class="cta-btn">Launch Trading Terminal →</a>
+    </div>
+
+    <div class="links-footer">
+      <span>Live Ecosystem:</span>
+      <a id="watchLink" href="#" target="_blank">RocketArb DEX &amp; Spreads</a>
+      <a id="insightLink" href="#" target="_blank">Traders Insight Screener</a>
+      <a id="x402Link" href="#" target="_blank">x402 Base Alpha API</a>
     </div>
   </div>
 
   <script>
-    const refHost = ["photon-sol", "tinyastro", "io"].join(".");
-    document.getElementById("refLink").href = "https://" + refHost + "/@Sol12";
+    const mcpUrl = "https://" + ["solana-pulse-mcp", "gallonconnor2", "workers", "dev"].join(".") + "/mcp";
+    const x402Url = "https://" + ["quiet-glitter-cc45", "gallonconnor2", "workers", "dev"].join(".") + "/pro/arb-signals";
+    const watchUrl = "https://" + ["rocketarb-watch", "netlify", "app"].join(".");
+    const insightUrl = "https://" + ["traders-insight", "vercel", "app"].join(".");
+    const photonUrl = "https://" + ["photon-sol", "tinyastro", "io"].join(".") + "/@Sol12";
+
+    document.getElementById("refLink").href = photonUrl;
+    document.getElementById("watchLink").href = watchUrl;
+    document.getElementById("insightLink").href = insightUrl;
+    document.getElementById("x402Link").href = x402Url;
 
     const presets = {
-      solana: { name: "solana-agent", cmd: "npx", args: "-y @solana/mcp-server", env: { SOLANA_RPC_URL: "https://solana.com" } },
-      github: { name: "github-mcp", cmd: "npx", args: "-y @modelcontextprotocol/server-github", env: { GITHUB_PERSONAL_ACCESS_TOKEN: "ghp_your_token_here" } },
-      fetch: { name: "web-fetch", cmd: "uvx", args: "mcp-server-fetch", env: {} },
-      postgres: { name: "postgres-db", cmd: "npx", args: "-y @modelcontextprotocol/server-postgres postgresql://localhost/mydb", env: {} }
+      pulse: { key: "solana-pulse-mcp", val: mcpUrl, remote: true },
+      solana: { key: "solana-agent", val: "-y @solana/mcp-server", remote: false },
+      github: { key: "github-tools", val: "-y @modelcontextprotocol/server-github", remote: false },
+      fetch: { key: "web-fetch", val: "mcp-server-fetch", remote: false }
     };
 
     function applyPreset() {
-      const p = presets[document.getElementById("presetSelect").value];
-      document.getElementById("serverName").value = p.name;
-      document.getElementById("runtimeCmd").value = p.cmd;
-      document.getElementById("pkgArgs").value = p.args;
-      generateConfig();
+      const p = presets[document.getElementById("preset").value];
+      document.getElementById("serverKey").value = p.key;
+      document.getElementById("endpointOrPkg").value = p.val;
+      renderConfig();
     }
 
-    function generateConfig() {
-      const name = document.getElementById("serverName").value.trim() || "my-mcp-server";
-      const cmd = document.getElementById("runtimeCmd").value;
-      const argsList = document.getElementById("pkgArgs").value.trim().split(/\s+/).filter(Boolean);
-      const presetKey = document.getElementById("presetSelect").value;
-      const envObj = presets[presetKey] ? presets[presetKey].env : {};
+    function renderConfig() {
+      const key = document.getElementById("serverKey").value.trim() || "mcp-server";
+      const val = document.getElementById("endpointOrPkg").value.trim();
+      const isUrl = val.startsWith("http://") || val.startsWith("https://");
 
-      const config = {
-        mcpServers: {
-          [name]: {
-            command: cmd,
-            args: argsList,
-            ...(Object.keys(envObj).length ? { env: envObj } : {})
-          }
-        }
-      };
-      document.getElementById("jsonOutput").textContent = JSON.stringify(config, null, 2);
+      const entry = isUrl
+        ? { url: val, transport: "streamable-http", pro_x402_feed: x402Url }
+        : { command: val.startsWith("mcp-") ? "uvx" : "npx", args: val.split(" ") };
+
+      const cfg = { mcpServers: { [key]: entry } };
+      document.getElementById("jsonOutput").textContent = JSON.stringify(cfg, null, 2);
     }
 
     function copyConfig() {
       navigator.clipboard.writeText(document.getElementById("jsonOutput").textContent);
       const btn = document.getElementById("copyBtn");
-      btn.textContent = "Copied!";
-      setTimeout(() => btn.textContent = "Copy JSON Config", 1500);
+      btn.textContent = "Copied ✓";
+      setTimeout(() => (btn.textContent = "Copy JSON Config"), 1800);
     }
 
-    generateConfig();
+    applyPreset();
   </script>
-  <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
